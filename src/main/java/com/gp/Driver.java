@@ -4,18 +4,28 @@ import org.mockserver.integration.ClientAndServer;
 import org.mockserver.matchers.MatchType;
 import org.mockserver.model.HttpRequest;
 import org.mockserver.model.HttpResponse;
+
+import java.io.IOException;
+import java.util.Properties;
+
 import static org.mockserver.model.JsonBody.json;
 
 public class Driver {
 
+    private final ConfigLoader configLoader = new ConfigLoader();
     private ClientAndServer mockServer;
 
-    public static void main(String[] args) {
+    public static void main(String[] args) throws IOException {
         new Driver().start();
     }
 
-    private void start() {
-        mockServer = ClientAndServer.startClientAndServer(1080);
+    private void start() throws IOException {
+        Properties properties = configLoader.getProperties();
+        System.out.println(properties.getProperty("server.port"));
+        int serverPort = Integer.parseInt(properties.getProperty("server.port"));
+        System.out.println("serverPort "+serverPort);
+
+        mockServer = ClientAndServer.startClientAndServer(serverPort);
         setExpectations();
     }
 
@@ -25,7 +35,6 @@ public class Driver {
     }
 
     private HttpResponse getResponse2() {
-        System.out.println("calling get response2 ;;;;;;;;;;;; ");
         return HttpResponse.response().withHeader("Content-Type", "application/json").withBody("{\"greetz\":\"hello worldz\"}").withStatusCode(201);
     }
 
@@ -34,13 +43,11 @@ public class Driver {
     }
 
     private HttpResponse getResponse() {
-        System.out.println("calling get response ----------- ");
         return HttpResponse.response().withHeader("Content-Type", "application/json").withBody("{\"greet\":\"hello world\"}").withStatusCode(200);
     }
 
     private HttpRequest getRequest() {
         return new HttpRequest().withPath("/some/path").withMethod("POST").withBody(json(getJSON(), MatchType.STRICT));
-
     }
 
     private String getJSON() {
