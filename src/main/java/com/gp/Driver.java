@@ -11,6 +11,8 @@ import java.util.List;
 import java.util.Properties;
 
 import static org.mockserver.model.JsonBody.json;
+import static org.mockserver.model.XmlBody.xml;
+import static org.apache.commons.lang3.StringUtils.isBlank;
 
 public class Driver {
 
@@ -42,63 +44,60 @@ public class Driver {
             Expectation expectation = iterator.next();
             setExpectation(expectation);
         }
-        /*mockServer.when(getRequest()).respond(getResponse());
-        mockServer.when(getRequest2()).respond(getResponse2());*/
     }
 
     private void setExpectation(Expectation expectation) {
         mockServer.when(getRequest(expectation)).respond(getResponse(expectation));
-
     }
 
     private HttpResponse getResponse(Expectation expectation) {
         HttpResponse httpResponse =  HttpResponse.response();
         httpResponse = httpResponse.withStatusCode(expectation.getResponseStatus());
-        if(expectation.getResponseBody() != null && expectation.getResponseBody().trim().length() > 0) {
+        if(!isBlank(expectation.getResponseBody())) {
             String resFile = expectation.getResponseBody();
-            String reqBody = fr.readFile(sampleFilesBasePath, resFile);
+            String resBody = fr.readFile(sampleFilesBasePath, resFile);
+            String contentType = expectation.getResponseContentType();
 
-            httpResponse = httpResponse.withHeader("Content-Type", "application/json").withBody(json(reqBody));
+            httpResponse = setResponseBody(contentType, resBody, httpResponse);
         }
         return httpResponse;
+    }
+
+    private HttpResponse setResponseBody(String contentType, String resBody, HttpResponse httpResponse) {
+        HttpResponse response = httpResponse.withHeader("Content-Type", contentType);
+        if(contentType.equals("application/json")) {
+            response = response.withBody(json(resBody));
+        } else if(contentType.equals("application/xml")) {
+            response = response.withBody(xml(resBody));
+        } else {
+            response = response.withBody(resBody);
+        }
+        return response;
     }
 
     private HttpRequest getRequest(Expectation expectation) {
         HttpRequest httpRequest = new HttpRequest();
         httpRequest = httpRequest.withPath(expectation.getRequestPath());
         httpRequest = httpRequest.withMethod(expectation.getRequestMethod());
-        if(expectation.getRequestBody() != null && expectation.getRequestBody().trim().length() > 0) {
+        if(!isBlank(expectation.getRequestBody())) {
             String reqFile = expectation.getRequestBody();
             String reqBody = fr.readFile(sampleFilesBasePath, reqFile);
-
-            httpRequest = httpRequest.withHeader("Content-Type", "application/json").withBody(json(reqBody));
+            String contentType = expectation.getRequestContentType();
+            httpRequest = setBody(contentType, reqBody, httpRequest);
         }
         return httpRequest;
     }
 
- /*   private HttpResponse getResponse2() {
-        return HttpResponse.response().withHeader("Content-Type", "application/json").withBody("{\"greetz\":\"hello worldz\"}").withStatusCode(201);
+    private HttpRequest setBody(String contentType, String reqBody, HttpRequest httpRequest) {
+        HttpRequest request = httpRequest.withHeader("Content-Type", contentType);
+        if(contentType.equals("application/json")) {
+            request = request.withBody(json(reqBody));
+        } else if(contentType.equals("application/xml")) {
+            request = request.withBody(xml(reqBody));
+        } else {
+            request = request.withBody(reqBody);
+        }
+        return request;
     }
-
-    private HttpRequest getRequest2() {
-        return new HttpRequest().withPath("/some/path2").withMethod("POST").withBody(json(getJSON2(), MatchType.STRICT));
-    }
-
-    private HttpResponse getResponse() {
-        return HttpResponse.response().withHeader("Content-Type", "application/json").withBody("{\"greet\":\"hello world\"}").withStatusCode(200);
-    }
-
-    private HttpRequest getRequest() {
-        return new HttpRequest().withPath("/some/path").withMethod("POST").withBody(json(getJSON(), MatchType.STRICT));
-    }
-
-    private String getJSON() {
-        return "{\"id\":1245,\"address\":\"NSW\"}";
-    }
-
-    private String getJSON2() {
-        return "{\"id\":124,\"address\":\"Paramatta\"}";
-    }*/
-
 
 }

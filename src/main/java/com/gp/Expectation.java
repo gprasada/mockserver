@@ -7,10 +7,12 @@ public class Expectation {
     private String requestBody;
     private String responseStatus;
     private String responseBody;
+    private String requestContentType;
+    private String responseContentType;
 
 
     public String getRequestPath() {
-        return requestPath;
+        return trimSafeString(requestPath);
     }
 
     public void setRequestPath(String requestPath) {
@@ -18,7 +20,7 @@ public class Expectation {
     }
 
     public String getRequestMethod() {
-        return requestMethod;
+        return trimSafeString(requestMethod);
     }
 
     public void setRequestMethod(String requestMethod) {
@@ -26,7 +28,7 @@ public class Expectation {
     }
 
     public String getRequestBody() {
-        return requestBody;
+        return trimSafeString(requestBody);
     }
 
     public void setRequestBody(String requestBody) {
@@ -42,10 +44,33 @@ public class Expectation {
     }
 
     public String getResponseBody() {
-        return responseBody;
+        return trimSafeString(responseBody);
     }
 
     public void setResponseBody(String responseBody) {
         this.responseBody = responseBody;
+    }
+
+    private String trimSafeString(String value) {
+        if(value != null) {
+            return value.trim();
+        }
+        return value;
+    }
+
+    public String getRequestContentType() {
+        return trimSafeString(requestContentType);
+    }
+
+    public void setRequestContentType(String requestContentType) {
+        this.requestContentType = requestContentType;
+    }
+
+    public String getResponseContentType() {
+        return trimSafeString(responseContentType);
+    }
+
+    public void setResponseContentType(String responseContentType) {
+        this.responseContentType = responseContentType;
     }
 }

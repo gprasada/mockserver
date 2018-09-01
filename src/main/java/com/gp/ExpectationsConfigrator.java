@@ -17,15 +17,17 @@ public class ExpectationsConfigrator {
     List<Expectation> readExpectations(String expectations) throws IOException {
         Reader in = new FileReader(expectations);
         Iterable<CSVRecord> records = CSVFormat.EXCEL.withHeader().parse(in);
-        //request.path,request.method,request.body,response.status,response.body
+        //request.path,request.method,request.contenttype,request.body,response.status,response.contentType,response.body
         List<Expectation> expectationList = new ArrayList<Expectation>();
         for (CSVRecord record : records) {
             Expectation expectation = new Expectation();
             expectation.setRequestPath(record.get("request.path"));
             expectation.setRequestMethod(record.get("request.method"));
             expectation.setRequestBody(record.get("request.body"));
+            expectation.setRequestContentType(record.get("request.contenttype"));
             expectation.setResponseStatus(record.get("response.status"));
             expectation.setResponseBody(record.get("response.body"));
+            expectation.setResponseContentType(record.get("response.contentType"));
             expectationList.add(expectation);
         }
         return expectationList;
