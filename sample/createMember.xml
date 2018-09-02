@@ -1,0 +1,13 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<soapenv:Envelope xmlns:soapenv="http://schemas.xmlsoap.org/soap/envelope/" xmlns:ns="http://example.com/ns">
+    <soapenv:Header />
+    <soapenv:Body>
+        <ns:request>
+            <ns:member>
+                <ns:name>Charlie</ns:name>
+                <ns:state>NSW</ns:state>
+                <ns:postcode>2150</ns:postcode>
+            </ns:member>
+        </ns:request>
+    </soapenv:Body>
+</soapenv:Envelope>
